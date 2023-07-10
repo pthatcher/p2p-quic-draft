@@ -96,7 +96,7 @@ If all of these uses are done using QUIC, there must be a way to distinguish mul
 both for streams and for datagrams.
 
 The MultiplexingID is an optional, variable-length integer at the beginning of every QUIC datagram and stream.  If it is negotiated to be used,
-it MUST be included on every datagram and stream.  If it is not negotiated to be used, it MUST not be included on any datagram or stream.
+it MUST be included on every datagram and stream.  If it is not negotiated to be used, it MUST NOT be included on any datagram or stream.
 
 The variable-length encoding is the same as used by QUIC, as defined in section 16.
 
@@ -140,3 +140,7 @@ a=mid:3
 # Security Considerations
 
 This document is subject to the security considerations of ICE and QUIC.
+
+# IANA Considerations
+
+The ALPN "q2q" must be registered.
