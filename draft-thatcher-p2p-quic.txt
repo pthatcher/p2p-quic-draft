@@ -63,15 +63,17 @@ Table of Contents
    13. MultiplexingID
    14. SDP
    15. Security Considerations
-   16. Normative References
+   16. IANA Considerations
+   17. Normative References
    Author's Address
 
 1.  Introduction
 
-   ICE is a protocol for establishing peer-to-peer (p2p) connections.
-   It can be combined with client-server protocols such as DTLS and SCTP
-   for p2p connections.  QUIC is a client-server protocol.  This
-   document describes how to use ICE with QUIC for p2p QUIC connections.
+   ICE [RFC8445] is a protocol for establishing peer-to-peer (p2p)
+   connections.  It can be combined with client-server protocols such as
+   DTLS [RFC9147] for p2p versions of those protocols.  This document
+   describes how to use ICE with QUIC [RFC9000] for p2p QUIC
+   connections.
 
 2.  Terminology and Notation
 
@@ -112,7 +114,9 @@ Table of Contents
 
 7.  Grease bit
 
-   Peers SHOULD enable and use the grease bit.
+   Peers SHOULD enable and use the grease bit if only multiplexing ICE
+   and QUIC.  When multiplexing other protocols that conflict with the
+   grease bit, peers SHOULD NOT use the grease bit.
 
 8.  Multipath
 
@@ -156,7 +160,7 @@ Table of Contents
    The MultiplexingID is an optional, variable-length integer at the
    beginning of every QUIC datagram and stream.  If it is negotiated to
    be used, it MUST be included on every datagram and stream.  If it is
-   not negotiated to be used, it MUST not be included on any datagram or
+   not negotiated to be used, it MUST NOT be included on any datagram or
    stream.
 
    The variable-length encoding is the same as used by QUIC, as defined
@@ -165,36 +169,59 @@ Table of Contents
 14.  SDP
 
    If SDP is used for signaling, the media type may be "audio", "video",
-   or "application".  The transport protocol MUST be "UDP/QUIC".  The
-   media format may be any value describing the protocol used on top of
-   QUIC, which would be defined by other specifications or by
-   applications (for example, "moq" or "roq").  The ICE parameters and
-   candidates are signaled as defined by ICE ("a=ice-ufrag", "a=ice-
-   pwd", "a=ice-options", "a=candidate").  The QUIC role and
-   fingerprints are signaled using the same attributes as DTLS
-   ("a=setup", and "a=fingerprint").  QUIC options are negotiated the
-   same as ICE options but with an "a=quic-options" field.  The grease
-   bit defaults to off unless a QUIC option of "grease" is included.
-   The MultiplexingID is signaled using an "a=mid" line, and the value
-   MUST be a base-10 integer.  If any "a=mid" is specified in any QUIC
+   or "application".  The transport protocol MUST begin with "UDP/QUIC".
+   The transport protocol suffix combined with the media format may be
+   any values which describe the protocol used on top of QUIC, either
+   defined by other specifications or by applications.  The media format
+   MAY be the value "generic".  The ICE parameters and candidates are
+   signaled as defined by ICE ("a=ice-ufrag", "a=ice-pwd", "a=ice-
+   options", "a=candidate").  The QUIC role and fingerprints are
+   signaled using the same attributes as DTLS ("a=setup", and
+   "a=fingerprint").  QUIC options are negotiated the same as ICE
+   options but with an "a=quic-options" field.  The grease bit defaults
+   to off unless a QUIC option of "grease" is included.  The
+   MultiplexingID is signaled using an "a=mid" line, and the value MUST
+   be a base-10 integer.  If any "a=mid" is specified in any QUIC
    m-section in a BUNDLE group, then all QUIC m-sections in the same
    BUNDLE group MUST have an "a=mid" specified.
 
-   For example: v=0 o=- 4962303333179871722 1 IN IP4 0.0.0.0 s=- t=0 0
-   a=ice-ufrag:7sFv a=ice-pwd:dOTZKZNVlO9RSGsEGM63JXT2 a=ice-
-   options:trickle a=quic-options:grease a=fingerprint:sha-256 29:E2:1C:
-   3B:4B:9F:81:E6:B8:5C:F4:A5:A8:D8:73:04:BB:05:2F:70:9F:04:A9:0E:05:E9:
-   26:33:E8:70:88:A2 a=setup:active a=group:BUNDLE 1 2 3 m=audio 9 UDP/
-   QUIC roq 99 a=mid:1 a=sendrecv a=rtpmap:99 OPUS/4800/2 m=video 9 UDP/
-   QUIC roq 100 a=mid:2 a=sendrecv a=rtpmap:100 VP8/90000 a=rtcp-fb:100
-   ccm fir m=application 9 UDP/QUIC webrtc-datachannel a=mid:3
+   For example:
+
+   v=0
+   o=- 4962303333179871722 1 IN IP4 0.0.0.0
+   s=-
+   t=0 0
+   a=ice-ufrag:7sFv
+   a=ice-pwd:dOTZKZNVlO9RSGsEGM63JXT2
+   a=ice-options:trickle
+   a=quic-options:grease
+   a=fingerprint:sha-256
+      7B:8B:F0:65:5F:78:E2:51:3B:AC:6F:F3:3F:46:1B:35:
+      DC:B8:5F:64:1A:24:C2:43:F0:A1:58:D0:A1:2C:19:08
+   a=setup:active
+   a=group:BUNDLE 1 2 3
+   m=audio 9 UDP/QUIC/RTP/AVPF 99
+   a=mid:1
+   a=sendrecv
+   a=rtpmap:99 OPUS/4800/2
+   m=video 9 UDP/QUIC/RTP/AVPF 100
+   a=mid:2
+   a=sendrecv
+   a=rtpmap:100 VP8/90000
+   a=rtcp-fb:100 ccm fir
+   m=application 9 UDP/QUIC generic
+   a=mid:3
 
 15.  Security Considerations
 
    This document is subject to the security considerations of ICE and
    QUIC.
 
-16.  Normative References
+16.  IANA Considerations
+
+   The ALPN "q2q" should be registered.
+
+17.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -204,6 +231,22 @@ Table of Contents
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC8445]  Keranen, A., Holmberg, C., and J. Rosenberg, "Interactive
+              Connectivity Establishment (ICE): A Protocol for Network
+              Address Translator (NAT) Traversal", RFC 8445,
+              DOI 10.17487/RFC8445, July 2018,
+              <https://www.rfc-editor.org/rfc/rfc8445>.
+
+   [RFC9000]  Iyengar, J., Ed. and M. Thomson, Ed., "QUIC: A UDP-Based
+              Multiplexed and Secure Transport", RFC 9000,
+              DOI 10.17487/RFC9000, May 2021,
+              <https://www.rfc-editor.org/rfc/rfc9000>.
+
+   [RFC9147]  Rescorla, E., Tschofenig, H., and N. Modadugu, "The
+              Datagram Transport Layer Security (DTLS) Protocol Version
+              1.3", RFC 9147, DOI 10.17487/RFC9147, April 2022,
+              <https://www.rfc-editor.org/rfc/rfc9147>.
 
 Author's Address
 
