@@ -28,9 +28,9 @@ This document describes how to combine ICE and QUIC to do p2p QUIC.
 
 # Introduction
 
-ICE is a protocol for establishing peer-to-peer (p2p) connections.
-It can be combined with client-server protocols such as DTLS and SCTP for p2p connections.
-QUIC is a client-server protocol.  This document describes how to use ICE with QUIC for p2p QUIC connections.
+ICE {{!RFC8445}} is a protocol for establishing peer-to-peer (p2p) connections.
+It can be combined with client-server protocols such as DTLS {{!RFC9147}} for p2p versions of those protocols.
+This document describes how to use ICE with QUIC {{!RFC9000}} for p2p QUIC connections.
 
 # Terminology and Notation
 
