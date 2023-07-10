@@ -112,7 +112,8 @@ The grease bit defaults to off unless a QUIC option of "grease" is included.
 The MultiplexingID is signaled using an "a=mid" line, and the value MUST be a base-10 integer.  If any "a=mid" is specified in any QUIC m-section in a BUNDLE group, then all QUIC m-sections in the same BUNDLE group MUST have an "a=mid" specified.
 
 For example:
-```
+
+~~~
 v=0
 o=- 4962303333179871722 1 IN IP4 0.0.0.0
 s=-
@@ -121,7 +122,9 @@ a=ice-ufrag:7sFv
 a=ice-pwd:dOTZKZNVlO9RSGsEGM63JXT2
 a=ice-options:trickle
 a=quic-options:grease
-a=fingerprint:sha-256 29:E2:1C:3B:4B:9F:81:E6:B8:5C:F4:A5:A8:D8:73:04:BB:05:2F:70:9F:04:A9:0E:05:E9:26:33:E8:70:88:A2
+a=fingerprint:sha-256
+   7B:8B:F0:65:5F:78:E2:51:3B:AC:6F:F3:3F:46:1B:35:
+   DC:B8:5F:64:1A:24:C2:43:F0:A1:58:D0:A1:2C:19:08
 a=setup:active
 a=group:BUNDLE 1 2 3
 m=audio 9 UDP/QUIC roq 99
@@ -135,7 +138,7 @@ a=rtpmap:100 VP8/90000
 a=rtcp-fb:100 ccm fir
 m=application 9 UDP/QUIC webrtc-datachannel
 a=mid:3
-```
+~~~
 
 # Security Considerations
 
