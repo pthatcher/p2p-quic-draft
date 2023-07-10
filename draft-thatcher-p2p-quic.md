@@ -64,7 +64,8 @@ Peers MAY use self-signed certificates.  Each peer MUST verify the certificate, 
 
 # Grease bit
 
-Peers SHOULD enable and use the grease bit.
+Peers SHOULD enable and use the grease bit if only multiplexing ICE and QUIC.
+When multiplexing other protocols that conflict with the grease bit, peers SHOULD NOT use the grease bit.
 
 # Multipath
 
