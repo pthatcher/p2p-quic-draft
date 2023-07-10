@@ -124,14 +124,15 @@ a=quic-options:grease
 a=fingerprint:sha-256 29:E2:1C:3B:4B:9F:81:E6:B8:5C:F4:A5:A8:D8:73:04:BB:05:2F:70:9F:04:A9:0E:05:E9:26:33:E8:70:88:A2
 a=setup:active
 a=group:BUNDLE 1 2 3
-m=audio 9 UDP/QUIC roq 100
+m=audio 9 UDP/QUIC roq 99
 a=mid:1
+a=sendrecv
+a=rtpmap:99 OPUS/4800/2
+m=video 9 UDP/QUIC roq 100
+a=mid:2
 a=sendrecv
 a=rtpmap:100 VP8/90000
 a=rtcp-fb:100 ccm fir
-m=video 9 UDP/QUIC roq ...
-a=mid:2
-...
 m=application 9 UDP/QUIC webrtc-datachannel
 a=mid:3
 ```
