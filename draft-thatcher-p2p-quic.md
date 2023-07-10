@@ -109,7 +109,7 @@ The ICE parameters and candidates are signaled as defined by ICE ("a=ice-ufrag",
 The QUIC role and fingerprints are signaled using the same attributes as DTLS ("a=setup", and "a=fingerprint").
 QUIC options are negotiated the same as ICE options but with an "a=quic-options" field.
 The grease bit defaults to off unless a QUIC option of "grease" is included.
-The MultiplexingID is signaled using an "a=mid" line, but the value MUST be a base-10 integer.
+The MultiplexingID is signaled using an "a=mid" line, and the value MUST be a base-10 integer.  If any "a=mid" is specified in any QUIC m-section in a BUNDLE group, then all QUIC m-sections in the same BUNDLE group MUST have an "a=mid" specified.
 
 For example:
 ```
