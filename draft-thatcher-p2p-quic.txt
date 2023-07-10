@@ -1,0 +1,212 @@
+
+
+
+
+Audio/Video Transport Core Maintenance                       P. Thatcher
+Internet-Draft                                                 Microsoft
+Intended status: Standards Track                            10 July 2023
+Expires: 11 January 2024
+
+
+                                P2P QUIC
+                     draft-thatcher-p2p-quic-latest
+
+Abstract
+
+   This document describes how to combine ICE and QUIC to do p2p QUIC.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 11 January 2024.
+
+Copyright Notice
+
+   Copyright (c) 2023 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Terminology and Notation
+   3.  ALPN
+   4.  (De)multiplexing ICE and QUIC
+   5.  Signaling
+   6.  Certificate verification
+   7.  Grease bit
+   8.  Multipath
+   9.  QUIC datagrams
+   10. Congestion control
+   11. QUIC Pings
+   12. Network Migration
+   13. MultiplexingID
+   14. SDP
+   15. Security Considerations
+   16. Normative References
+   Author's Address
+
+1.  Introduction
+
+   ICE is a protocol for establishing peer-to-peer (p2p) connections.
+   It can be combined with client-server protocols such as DTLS and SCTP
+   for p2p connections.  QUIC is a client-server protocol.  This
+   document describes how to use ICE with QUIC for p2p QUIC connections.
+
+2.  Terminology and Notation
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+3.  ALPN
+
+   The QUIC ALPN MUST be "q2q".
+
+4.  (De)multiplexing ICE and QUIC
+
+   QUIC packets MUST be sent using the ICE selected candidate pair.
+
+   ICE and QUIC packets are demultiplexed using the STUN magic cookie.
+   If a packet contains a STUN magic cookied, it MUST treated as an ICE
+   packet.  If it does not contain a STUN magic cookie, it SHOULD be
+   treated as a QUIC packet (but further demultiplexing between QUIC and
+   other protocols is possible).
+
+5.  Signaling
+
+   In addition to all signaling necessary for ICE (ICE parameters and
+   candidates), the following information MUST be signaled or otherwise
+   negotiated between the peers: - Which side will take on the active
+   (client) or passive (server) role. - Certificate fingerprint(s) -
+   Whether or not to enable the grease bit - Whether or not to the
+   MuliplexingID is used
+
+6.  Certificate verification
+
+   Peers MAY use self-signed certificates.  Each peer MUST verify the
+   certificate, meaning a QUIC implementation MUST support a server
+   verifying a client certificate.
+
+7.  Grease bit
+
+   Peers SHOULD enable and use the grease bit.
+
+8.  Multipath
+
+   QUIC multipath SHOULD NOT be used unless it is known that one of the
+   peers is a server.
+
+9.  QUIC datagrams
+
+   QUIC datagrams SHOULD be supported.
+
+10.  Congestion control
+
+   A real-time congestion control algorithm SHOULD be used, which may
+   require extensions to QUIC (such as additional timestamps in feedback
+   messages) and additional signaling.
+
+11.  QUIC Pings
+
+   ACKed QUIC PING frames MAY be treated the same as a succesful ICE
+   check, such that a peer may choose to send QUIC PING frames instead
+   of ICE checks once an ICE candidate pair has had at least one
+   successful ICE check.
+
+12.  Network Migration
+
+   Network migration SHOULD be done using ICE, not QUIC.  But ICE
+   migrates between candidate pairs, QUIC should change behavior (such
+   as congestion control) as if it had done a network migration, but it
+   SHOULD NOT change the connection ID due to ICE migration.
+
+13.  MultiplexingID
+
+   Because it is often difficult to obtain an ICE connection, it is
+   often advantageous to multiplex many uses over a single ICE
+   connection.  For example, one may wish to send control data, real-
+   time audio and video, and real-time data altogether over the same ICE
+   connection.  If all of these uses are done using QUIC, there must be
+   a way to distinguish multiple uses of QUIC within the same QUIC
+   connection, both for streams and for datagrams.
+
+   The MultiplexingID is an optional, variable-length integer at the
+   beginning of every QUIC datagram and stream.  If it is negotiated to
+   be used, it MUST be included on every datagram and stream.  If it is
+   not negotiated to be used, it MUST not be included on any datagram or
+   stream.
+
+   The variable-length encoding is the same as used by QUIC, as defined
+   in section 16.
+
+14.  SDP
+
+   If SDP is used for signaling, the media type may be "audio", "video",
+   or "application".  The transport protocol MUST be "UDP/QUIC".  The
+   media format may be any value describing the protocol used on top of
+   QUIC, which would be defined by other specifications or by
+   applications (for example, "moq" or "roq").  The ICE parameters and
+   candidates are signaled as defined by ICE ("a=ice-ufrag", "a=ice-
+   pwd", "a=ice-options", "a=candidate").  The QUIC role and
+   fingerprints are signaled using the same attributes as DTLS
+   ("a=setup", and "a=fingerprint").  QUIC options are negotiated the
+   same as ICE options but with an "a=quic-options" field.  The grease
+   bit defaults to off unless a QUIC option of "grease" is included.
+   The MultiplexingID is signaled using an "a=mid" line, and the value
+   MUST be a base-10 integer.  If any "a=mid" is specified in any QUIC
+   m-section in a BUNDLE group, then all QUIC m-sections in the same
+   BUNDLE group MUST have an "a=mid" specified.
+
+   For example: v=0 o=- 4962303333179871722 1 IN IP4 0.0.0.0 s=- t=0 0
+   a=ice-ufrag:7sFv a=ice-pwd:dOTZKZNVlO9RSGsEGM63JXT2 a=ice-
+   options:trickle a=quic-options:grease a=fingerprint:sha-256 29:E2:1C:
+   3B:4B:9F:81:E6:B8:5C:F4:A5:A8:D8:73:04:BB:05:2F:70:9F:04:A9:0E:05:E9:
+   26:33:E8:70:88:A2 a=setup:active a=group:BUNDLE 1 2 3 m=audio 9 UDP/
+   QUIC roq 99 a=mid:1 a=sendrecv a=rtpmap:99 OPUS/4800/2 m=video 9 UDP/
+   QUIC roq 100 a=mid:2 a=sendrecv a=rtpmap:100 VP8/90000 a=rtcp-fb:100
+   ccm fir m=application 9 UDP/QUIC webrtc-datachannel a=mid:3
+
+15.  Security Considerations
+
+   This document is subject to the security considerations of ICE and
+   QUIC.
+
+16.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+Author's Address
+
+   Peter Thatcher
+   Microsoft
+   Email: pthatcher@microsoft.com

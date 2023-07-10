@@ -103,8 +103,8 @@ The variable-length encoding is the same as used by QUIC, as defined in section 
 # SDP
 
 If SDP is used for signaling, the media type may be "audio", "video", or "application".
-The transport protocol MUST be "UDP/QUIC".
-The media format may be any value describing the protocol used on top of QUIC, which would be defined by other specifications or by applications (for example, "moq" or "roq").
+The transport protocol MUST begin with "UDP/QUIC".
+The transport protocol suffix combined with the media format may be any values which describe the protocol used on top of QUIC, either defined by other specifications or by applications.  The media format MAY be the value "generic".
 The ICE parameters and candidates are signaled as defined by ICE ("a=ice-ufrag", "a=ice-pwd", "a=ice-options", "a=candidate").
 The QUIC role and fingerprints are signaled using the same attributes as DTLS ("a=setup", and "a=fingerprint").
 QUIC options are negotiated the same as ICE options but with an "a=quic-options" field.
@@ -127,16 +127,16 @@ a=fingerprint:sha-256
    DC:B8:5F:64:1A:24:C2:43:F0:A1:58:D0:A1:2C:19:08
 a=setup:active
 a=group:BUNDLE 1 2 3
-m=audio 9 UDP/QUIC roq 99
+m=audio 9 UDP/QUIC/RTP/AVPF 99
 a=mid:1
 a=sendrecv
 a=rtpmap:99 OPUS/4800/2
-m=video 9 UDP/QUIC roq 100
+m=video 9 UDP/QUIC/RTP/AVPF 100
 a=mid:2
 a=sendrecv
 a=rtpmap:100 VP8/90000
 a=rtcp-fb:100 ccm fir
-m=application 9 UDP/QUIC webrtc-datachannel
+m=application 9 UDP/QUIC generic
 a=mid:3
 ~~~
 
@@ -146,4 +146,4 @@ This document is subject to the security considerations of ICE and QUIC.
 
 # IANA Considerations
 
-The ALPN "q2q" must be registered.
+The ALPN "q2q" should be registered.
